@@ -74,16 +74,23 @@ public class ShiroRealm extends AuthorizingRealm {
         // 通过用户名到数据库查询用户信息
         User user = this.userService.findByName(userName);
 
-        if (user == null) {
+        if (user == null)
             throw new UnknownAccountException("用户名或密码错误！");
-        }
-        if (!password.equals(user.getPassword())) {
+        if (!password.equals(user.getPassword()))
             throw new IncorrectCredentialsException("用户名或密码错误！");
-        }
-        if (User.STATUS_LOCK.equals(user.getStatus())) {
+        if (User.STATUS_LOCK.equals(user.getStatus()))
             throw new LockedAccountException("账号已被锁定,请联系管理员！");
-        }
         return new SimpleAuthenticationInfo(user, password, getName());
+    }
+
+    /**
+     * 清除权限缓存
+     * 使用方法：在需要清除用户权限的地方注入 ShiroRealm,
+     * 然后调用其clearCache方法。
+     */
+    public void clearCache() {
+        PrincipalCollection principals = SecurityUtils.getSubject().getPrincipals();
+        super.clearCache(principals);
     }
 
 }
